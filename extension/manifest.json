@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Linklight \u2014 URL & QR Check",
+  "version": "2.0.0",
+  "description": "Check links and QR destinations before you open them.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://linklight-check.alivecod8.chatgpt.site/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Linklight"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src https://linklight-check.alivecod8.chatgpt.site; img-src 'self' blob: data:; style-src 'self'; base-uri 'none'"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

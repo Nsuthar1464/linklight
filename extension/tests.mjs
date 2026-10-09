@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {normalize,assess,lookup} from './core.mjs';
+const report=(malicious=0,suspicious=0,age=0)=>({last_analysis_date:Date.now()/1000-age*86400,last_analysis_stats:{malicious,suspicious,harmless:60,undetected:10}});
+test('normalizes URLs and removes fragments',()=>assert.equal(normalize('example.com/a#secret'),'https://example.com/a'));
+test('rejects executable, credential and private addresses',()=>{for(const url of ['javascript:alert(1)','data:text/plain,x','https://me:pass@example.com','http://localhost','http://127.1','http://192.168.1.1','http://[::1]','hello world'])assert.throws(()=>normalize(url),url)});
+test('clear report is low risk, not a safety guarantee',()=>assert.equal(assess('https://example.com',report()).label,'Low Risk'));
+test('one malicious detection is high risk',()=>assert.equal(assess('https://example.com',report(1)).label,'High Risk'));
+test('suspicious detection is medium risk',()=>assert.equal(assess('https://example.com',report(0,1)).label,'Medium Risk'));
+test('HTTP and shortened URLs elevate risk',()=>{for(const url of ['http://example.com','https://bit.ly/abc'])assert.equal(assess(url,report()).label,'Medium Risk')});
+test('missing, malformed and stale clean reports remain unknown',()=>{for(const a of [null,{},report(0,0,8),{last_analysis_stats:{}}])assert.equal(assess('https://example.com',a).score,null)});
+test('old detections retain a warning',()=>assert.equal(assess('https://example.com',report(1,0,30)).label,'High Risk'));
+test('proxy returns report without credentials in the client request',async()=>{await lookup('https://example.com',async(url,opts)=>{assert.match(url,/linklight-check.*api\/check/);assert.equal(opts.headers['x-apikey'],undefined);assert.equal(JSON.parse(opts.body).url,'https://example.com');return {ok:true,json:async()=>({attributes:report()})};});});
+test('inactive service fails explicitly',async()=>{await assert.rejects(lookup('https://example.com',async()=>({ok:false,json:async()=>({error:'Security checks are not activated yet.'})})),/not activated/)});
+test('missing report remains unknown',async()=>assert.equal(await lookup('https://example.com',async()=>({ok:true,json:async()=>({attributes:null})})),null));
