@@ -1,1 +1,1 @@
-export function lookupProviders(url:string,keys:{VT_API_KEY:string;GOOGLE_SAFE_BROWSING_API_KEY:string},options:{cache:Cache;fetcher?:typeof fetch;now?:()=>number}):Promise<{attributes:unknown}>;
+export function lookupProviders(url:string,keys:{VT_API_KEY?:string;GOOGLE_SAFE_BROWSING_API_KEY:string;URLHAUS_AUTH_KEY?:string;IPQS_API_KEY?:string},options:{cache:Cache;fetcher?:typeof fetch;now?:()=>number;reserve?:(provider:string)=>Promise<boolean>}):Promise<{attributes:unknown}>;

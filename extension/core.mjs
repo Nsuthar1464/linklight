@@ -31,10 +31,33 @@ function assessCombined(url,a,now){
     {label:'Learn about these threats',href:g.threatTypes.includes('SOCIAL_ENGINEERING')?'https://developers.google.com/search/docs/monitor-debug/security/social-engineering':g.threatTypes.includes('POTENTIALLY_HARMFUL_APPLICATION')?'https://developers.google.com/android/play-protect/potentially-harmful-applications':'https://developers.google.com/search/docs/monitor-debug/security/malware'}
    ]};
  }
+ // Extra sources: a listing in URLhaus or an IPQS malware/phishing verdict is High Risk.
+ const uh=a.urlhaus,iq=a.ipqs;
+ const uhHit=uh?.state==='ok'&&uh.listed===true;
+ const iqHit=iq?.state==='ok'&&(iq.malware===true||iq.phishing===true);
+ if(uhHit||iqHit){
+  const notes=[...vt.notes];
+  if(uhHit)notes.unshift('This address is listed in URLhaus, a database of links that spread malware.');
+  if(iqHit)notes.unshift('IPQualityScore reported this link as '+(iq.malware?'hosting malware':'a phishing page')+'.');
+  return {label:'High Risk',tone:'high',score:Math.max(90,vt.score??0),summary:'Avoid opening this link. A security source identified a possible threat.',notes,
+   evidence:(uhHit?'URLhaus':'IPQualityScore')+' matched a known threat. Redirect destinations are not independently checked.',...(googleReady?{googleExpiresAt:g.expiresAt}:{})};
+ }
+ const extraClean=(uh?.state==='ok'&&uh.listed===false)||(iq?.state==='ok'&&!iq.suspicious&&iq.risk_score<85);
+ const iqWarn=iq?.state==='ok'&&(iq.suspicious===true||iq.risk_score>=85);
+ const bump=r=>{
+  if(!iqWarn||r.tone==='high'||r.tone==='unknown')return r;
+  return {...r,label:'Medium Risk',tone:'medium',score:Math.max(r.score??0,45),summary:'Pause before opening. Review the warning signs below.',notes:[...r.notes,'IPQualityScore marked this link as suspicious.']};
+ };
  const stats=a.last_analysis_stats;
  const positive=stats&&(stats.malicious>0||stats.suspicious>0);
+ // No usable VirusTotal report: Google plus one clean extra source can still rate the link.
+ if(googleReady&&extraClean&&vt.label==='Unknown'){
+  const base=assessReport(url,{last_analysis_stats:{malicious:0,suspicious:0,harmless:1,undetected:0},last_analysis_date:now/1000},now);
+  const sources=['Google Safe Browsing',uh?.state==='ok'&&'URLhaus',iq?.state==='ok'&&'IPQualityScore'].filter(Boolean).join(', ');
+  return bump({...base,googleExpiresAt:g.expiresAt,evidence:'No known threat found by '+sources+'. Redirect destinations are not independently checked. This does not guarantee safety.'});
+ }
  if(!googleReady&&!positive)return {...vt,label:'Unknown',tone:'unknown',score:null,summary:'The check is incomplete. There is not enough information to rate this link.',evidence:'One security source is unavailable or its result expired. Check again later.'};
- if(googleReady)return {...vt,googleExpiresAt:g.expiresAt,evidence:vt.evidence+' Google Safe Browsing returned no known threat match. This does not guarantee safety.'};
+ if(googleReady)return bump({...vt,googleExpiresAt:g.expiresAt,evidence:vt.evidence+' Google Safe Browsing returned no known threat match. This does not guarantee safety.'});
  return {...vt,notes:[...vt.notes,'The second security source is unavailable. This check is incomplete.']};
 }
 function assessReport(url,a,now) {
