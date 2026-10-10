@@ -60,7 +60,7 @@ export default function WebsiteCheck(){
   finally{clearTimeout(timeout);checking.current=false;setBusy(false);controller.current=null;}
  }
  async function readFile(file:File){
-  scanner.current?.stop();const run=++imageRun.current;setReading(true);setResult(null);setMessage('Reading QR image…');
+  scanner.current?.stop();const run=++imageRun.current;setReading(true);setUrl('');setResult(null);setMessage('Reading QR image…');
   let objectURL:string|undefined;
   try{
    if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>10*1024*1024)throw Error('Choose a PNG, JPG or WebP image smaller than 10 MB.');
