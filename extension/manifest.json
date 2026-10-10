@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Linklight \u2014 URL & QR Check",
-  "version": "2.0.0",
+  "name": "Linklight | URL & QR Check",
+  "version": "2.0.1",
   "description": "Check links and QR destinations before you open them.",
   "permissions": [
     "storage"

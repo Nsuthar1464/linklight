@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Linklight — Look before you leap",
+  title: "Linklight | Check links and QR codes",
   description: "Check links and QR codes before opening them. Download Linklight for desktop Chrome.",
   icons: {
     icon: "/favicon.svg",
@@ -18,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased"><Script src="/jsQR.js" strategy="beforeInteractive" />{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

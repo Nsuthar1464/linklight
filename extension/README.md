@@ -1,25 +1,21 @@
-# Linklight 2.0 beta
+# Linklight
 
-No personal API key required. Security checks use the Linklight service.
+Use Linklight in Google Chrome on Mac or Windows. No account or personal API key is needed.
 
 ## Install
-1. Unzip and keep the linklight folder on your computer.
-2. Open chrome://extensions in desktop Chrome and enable Developer mode.
-3. Load unpacked → select linklight.
-4. The welcome page opens. Choose Enable camera → Allow, or skip camera setup.
-5. Pin Linklight from Chrome’s Extensions menu.
+Download and unzip the folder. Keep it on your computer. Open chrome://extensions in Chrome, enable Developer mode, choose Load unpacked, and select the linklight folder.
 
-Paste a link and choose Check destination. For QR codes, choose QR code and hold your phone to the laptop camera, or upload an image. Scanning stays inside the popup. Camera setup may need a separate small window once because Chrome cannot always prompt inside the toolbar popup.
+## Allow
+The welcome page lets you enable camera access or skip it. Camera setup may open a separate window once. Everyday scanning stays inside the toolbar popup.
+
+## Pin and check
+Pin Linklight in Chrome’s Extensions menu. Paste a link and choose Check destination. For QR codes, show a code to your laptop camera or upload an image.
 
 ## Update
-Replace the contents of your ORIGINAL installed folder and click Reload in chrome://extensions. Your old personal API key is removed during the version upgrade. No key needs to be entered again.
+Replace the files in your original Linklight folder and click Reload in chrome://extensions.
 
-## Service availability
-If the shared service has not been activated, checks return an explicit unavailable message. QR decoding still works. Do not treat unavailable or Unknown as safe. Shared usage limits apply.
+## Privacy and results
+Camera frames stay on your device. Checked URLs go to Linklight and an external security service. Avoid private links, passwords and access tokens.
+Unknown or unavailable means the link has not been verified. Automated checks can make mistakes. Low risk is not a guarantee. Scores summarize warning signs and are not probabilities. The service uses existing reports and does not independently check redirects.
 
-## Privacy
-Camera frames stay on your device and are not recorded. A URL you choose to check goes to Linklight’s server and VirusTotal. Do not submit private or token-bearing links. The application stores only global quota counters, not URLs or camera images. Hosting providers may keep standard request metadata.
-
-Automated checks can make mistakes. Low Risk is not a guarantee. Scores are rule-based indicators, not probabilities. Existing reports only; redirects are not independently checked.
-
-Normal consumer installation requires a future Chrome Web Store release. This ZIP is a manual-install beta.
+This download installs manually. It is not a Chrome Web Store listing.

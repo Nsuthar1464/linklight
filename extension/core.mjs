@@ -19,10 +19,10 @@ export function assess(url,a,now=Date.now()) {
  const total=valid?s.malicious+s.suspicious+s.harmless+s.undetected:0;
  const date=Number(a?.last_analysis_date)*1000;
  const stale=!Number.isFinite(date)||date>now+300000||now-date>7*86400000;
- if(!valid||!total) return {label:'Unknown',tone:'unknown',score:null,summary:'There is not enough security data to rate this link.',notes,evidence:'No usable VirusTotal report. The destination has not been verified.'};
+ if(!valid||!total) return {label:'Unknown',tone:'unknown',score:null,summary:'There is not enough security data to rate this link.',notes,evidence:'No usable security report. The destination has not been verified.'};
  const flagged=s.malicious+s.suspicious;
  let score=Math.min(100,local+(s.malicious?Math.min(95,70+5*(s.malicious-1)):s.suspicious?45:5));
- if(stale&&!flagged) return {label:'Unknown',tone:'unknown',score:null,summary:'The available report is too old to rate this link.',notes,evidence:'VirusTotal report: '+(Number.isFinite(date)?new Date(date).toLocaleString():'date unavailable')};
+ if(stale&&!flagged) return {label:'Unknown',tone:'unknown',score:null,summary:'The available report is too old to rate this link.',notes,evidence:'Report date: '+(Number.isFinite(date)?new Date(date).toLocaleString():'date unavailable')};
  if(flagged) notes.unshift(`${s.malicious} security engines reported malicious activity; ${s.suspicious} reported suspicious activity.`);
  if(stale) notes.push('These detections come from an older report and may no longer reflect this page.');
  const tone=score>=70?'high':score>=20?'medium':'low';
