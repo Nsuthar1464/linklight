@@ -1,0 +1,59 @@
+.lens-wrap{--low:#30d158;--med:#ff9f0a;--high:#ff453a;position:relative;perspective:1200px;width:100%;max-width:440px;margin-inline:auto}
+.lens{--c:var(--low);--rx:0deg;--ry:0deg;--mx:50%;--my:30%;position:relative;overflow:hidden;border-radius:28px;padding:22px;color:#f5f5f7;
+ background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.04));
+ -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+ border:1px solid rgba(255,255,255,.14);border-top-color:rgba(255,255,255,.34);
+ box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.4),0 0 80px -20px color-mix(in srgb,var(--c) 45%,transparent);
+ transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform 280ms cubic-bezier(.23,1,.32,1),box-shadow 500ms cubic-bezier(.23,1,.32,1);will-change:transform}
+.lens-medium{--c:var(--med)}.lens-high{--c:var(--high)}
+.lens-spot{position:absolute;inset:0;pointer-events:none;background:radial-gradient(260px circle at var(--mx) var(--my),rgba(255,255,255,.16),transparent 65%);opacity:0;transition:opacity 300ms ease}
+.lens-wrap:hover .lens-spot{opacity:1}
+.lens-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.lens-dots{display:flex;gap:6px}.lens-dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.22)}
+.lens-badge{font:600 10.5px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:rgba(255,255,255,.55)}
+.lens-url{position:relative;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:14px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);overflow:hidden;font:500 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#fff}
+.lens-url svg{flex:none;color:rgba(255,255,255,.6)}
+.lens-url-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:lens-type 420ms cubic-bezier(.23,1,.32,1) both}
+@keyframes lens-type{from{opacity:0;transform:translateY(6px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.lens-beam{position:absolute;top:0;bottom:0;left:0;width:45%;pointer-events:none;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--c) 55%,#fff 10%),transparent);opacity:0;transform:translateX(-100%)}
+.is-scanning .lens-beam{opacity:.75;animation:lens-sweep 1.1s cubic-bezier(.77,0,.175,1) infinite}
+@keyframes lens-sweep{to{transform:translateX(260%)}}
+.lens-body{display:flex;align-items:center;gap:20px;margin:22px 0 18px}
+.lens-gauge{position:relative;flex:none;width:112px;height:112px}
+.lens-gauge svg{width:100%;height:100%;display:block}
+.g-track,.g-fill{fill:none;stroke-width:9;stroke-linecap:round}
+.g-track{stroke:rgba(255,255,255,.1)}
+.g-fill{stroke:var(--c);filter:drop-shadow(0 0 8px color-mix(in srgb,var(--c) 70%,transparent));transition:stroke-dashoffset 900ms cubic-bezier(.23,1,.32,1),stroke 400ms ease}
+.g-center{position:absolute;inset:0;display:grid;place-items:center;color:var(--c);transition:color 400ms ease}
+.g-center svg{width:34px;height:34px;transform:scale(.9);opacity:.5;transition:transform 600ms cubic-bezier(.34,1.56,.64,1),opacity 300ms ease}
+.is-done .g-center svg{transform:scale(1);opacity:1}
+.lens-verdict{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lens-label{font:700 clamp(24px,3.4vw,30px)/1.05 -apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',system-ui,sans-serif;letter-spacing:-.025em;color:#fff}
+.is-done .lens-label{background:linear-gradient(180deg,#fff,color-mix(in srgb,var(--c) 70%,#fff));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lens-note{font:400 14px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.62)}
+.lens-sources{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.lens-sources li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);font:500 13.5px/1 system-ui,sans-serif;color:rgba(255,255,255,.82);transition:background 300ms ease,border-color 300ms ease,transform 400ms cubic-bezier(.23,1,.32,1)}
+.lens-sources em{margin-left:auto;font-style:normal;font-size:12px;color:rgba(255,255,255,.5)}
+.src-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);transition:background 300ms ease,box-shadow 300ms ease}
+.src-clear .src-dot{background:var(--low);box-shadow:0 0 10px var(--low)}.src-clear em{color:var(--low)}
+.src-warn .src-dot{background:var(--med);box-shadow:0 0 10px var(--med)}.src-warn em{color:var(--med)}
+.src-bad .src-dot{background:var(--high);box-shadow:0 0 10px var(--high)}.src-bad em{color:var(--high)}
+.is-scanning .lens-sources li{animation:lens-pulse 1.1s ease-in-out infinite}
+.is-scanning .lens-sources li:nth-child(2){animation-delay:.15s}.is-scanning .lens-sources li:nth-child(3){animation-delay:.3s}
+@keyframes lens-pulse{50%{background:rgba(255,255,255,.1)}}
+.lens-picks{display:flex;justify-content:center;gap:8px;margin-top:16px}
+.pick{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font:600 13px/1 system-ui,sans-serif;cursor:pointer;transition:transform 160ms cubic-bezier(.23,1,.32,1),background 200ms ease,color 200ms ease,border-color 200ms ease}
+.pick i{width:8px;height:8px;border-radius:50%}
+.pick-low i{background:var(--low)}.pick-medium i{background:var(--med)}.pick-high i{background:var(--high)}
+.pick:active{transform:scale(.96)}
+.pick.on{background:#fff;color:#111;border-color:#fff}
+.pick:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media (hover:hover) and (pointer:fine){.pick:not(.on):hover{background:rgba(255,255,255,.14);color:#fff}}
+.lens-foot{margin:12px 0 0;text-align:center;font:400 12px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.45)}
+@media (max-width:520px){.lens{padding:18px;border-radius:24px}.lens-gauge{width:92px;height:92px}.lens-body{gap:14px}}
+@media (prefers-reduced-motion:reduce){.lens{transform:none!important;transition:box-shadow 300ms ease}.lens-beam{display:none}.lens-url-text,.is-scanning .lens-sources li{animation:none}.g-fill{transition:none}.g-center svg{transition:none}}
+@media (prefers-reduced-transparency:reduce){.lens{background:#1c1c1e;-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media (prefers-contrast:more){.lens{border-color:#fff;background:#111}}
+.motion-off .lens{transform:none!important}.motion-off .lens-beam{display:none}
+.g-fill{transition:stroke-dashoffset 900ms cubic-bezier(.23,1,.32,1),stroke 400ms ease,opacity 200ms ease}
+.is-scanning .g-fill{opacity:0}

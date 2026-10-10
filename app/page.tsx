@@ -1,8 +1,9 @@
 'use client';
-import {useEffect,useRef,useState,type PointerEvent} from 'react';
+import {useEffect,useState} from 'react';
 import WebsiteCheck from '../components/website-check';
+import VerdictLens from '../components/verdict-lens';
 import ExtensionDownload from '../components/extension-download';
-import {ArrowUpRight,ArrowRight,ArrowDown,Check,Download,ShieldCheck,ScanLine,Link as LinkIcon,Camera,LockKeyhole,MousePointer2,Plus,Minus,Pause,Play,Globe,EyeOff} from 'lucide-react';
+import {ArrowUpRight,ArrowRight,ArrowDown,Check,ShieldCheck,ScanLine,Link as LinkIcon,Camera,LockKeyhole,MousePointer2,Plus,Minus,Pause,Play,EyeOff} from 'lucide-react';
 
 const steps=[
  {title:'Install in Chrome.',short:'Install',text:'Open Linklight’s Chrome Web Store listing, choose Add to Chrome, and confirm the installation.',icon:Plus},
@@ -13,33 +14,22 @@ function Brand({small=false}:{small?:boolean}){return <span className={'brand '+
 function AppTile({kind,className=''}:{kind:'shield'|'qr'|'link'|'lock';className?:string}){const Icon={shield:ShieldCheck,qr:ScanLine,link:LinkIcon,lock:LockKeyhole}[kind];return <div className={`app-tile ${kind} ${className}`}><span className="tile-glint"/><Icon strokeWidth={1.35}/></div>}
 export default function Home(){
  const [motion,setMotion]=useState(true),[ready,setReady]=useState<boolean|null>(null),[desktopChrome,setDesktopChrome]=useState(false),[step,setStep]=useState(0);
- const scene=useRef<HTMLDivElement>(null),frame=useRef<number>(0);
- const StepIcon=steps[step].icon;
+  const StepIcon=steps[step].icon;
  useEffect(()=>{
   const media=window.matchMedia('(prefers-reduced-motion: reduce)');queueMicrotask(()=>{setMotion(!media.matches);const ua=navigator.userAgent;setDesktopChrome(/Chrome\//.test(ua)&&/Google Inc/.test(navigator.vendor)&&!/Edg|OPR|Android|iPhone|iPad|iPod/.test(ua)&&/Macintosh|Windows NT/.test(ua)&&!(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1));});
   const change=()=>setMotion(!media.matches);media.addEventListener('change',change);
   fetch('/api/status').then(r=>r.json()).then(x=>setReady((x as {ready:boolean}).ready)).catch(()=>setReady(false));
   const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-view');observer.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll('[data-reveal]').forEach(el=>observer.observe(el));
   const hide=()=>document.documentElement.classList.toggle('page-hidden',document.hidden);document.addEventListener('visibilitychange',hide);
-  return()=>{media.removeEventListener('change',change);observer.disconnect();document.removeEventListener('visibilitychange',hide);cancelAnimationFrame(frame.current)};
+  return()=>{media.removeEventListener('change',change);observer.disconnect();document.removeEventListener('visibilitychange',hide);};
  },[]);
- function tilt(e:PointerEvent<HTMLDivElement>){if(!motion||e.pointerType==='touch')return;const b=e.currentTarget.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;cancelAnimationFrame(frame.current);frame.current=requestAnimationFrame(()=>{scene.current?.style.setProperty('--rx',`${-y*9}deg`);scene.current?.style.setProperty('--ry',`${x*11}deg`)});}
- function resetTilt(){cancelAnimationFrame(frame.current);scene.current?.style.setProperty('--rx','0deg');scene.current?.style.setProperty('--ry','0deg');}
  return <div className={motion?'site':'site motion-off'}>
  <a className="skip" href="#main">Skip to content</a>
- <header className="site-header"><a href="#" aria-label="Linklight home"><Brand/></a><nav aria-label="Main navigation"><a href="#check">Check a link</a><a href="#details">The details</a><a href="#install">Get started</a></nav><div className="header-actions"><button className="motion-button" aria-label={motion?'Pause animations':'Enable animations'} aria-pressed={!motion} onClick={()=>{setMotion(!motion);resetTilt()}}>{motion?<Pause size={14}/>:<Play size={14}/>}</button><a href="#check" className="header-download">Check a link <ArrowRight size={14}/></a></div></header>
+ <header className="site-header"><a href="#" aria-label="Linklight home"><Brand/></a><nav aria-label="Main navigation"><a href="#check">Check a link</a><a href="#details">The details</a><a href="#install">Get started</a></nav><div className="header-actions"><button className="motion-button" aria-label={motion?'Pause animations':'Enable animations'} aria-pressed={!motion} onClick={()=>{setMotion(!motion)}}>{motion?<Pause size={14}/>:<Play size={14}/>}</button><a href="#check" className="header-download">Check a link <ArrowRight size={14}/></a></div></header>
  <main id="main">
  <section className="hero" aria-labelledby="hero-heading"><div className="hero-grid" aria-hidden="true"/><div className="hero-aura" aria-hidden="true"/><div className="hero-topline"><span className="eyebrow"><span className="tiny-spark"/> THINK BEFORE YOU CLICK</span><span className="edition">LINKS + QR CODES</span></div>
  <div className="hero-layout"><div className="hero-copy"><h1 id="hero-heading">The internet.<br/>With a little<br/><span className="light-word">more light.</span></h1><p>Not every link deserves a click.<br/>Check links and QR codes<br className="desktop-break"/> before opening them.</p><div className="hero-buttons"><a className="button bright" href="#check"><ShieldCheck size={18}/> Check a link</a><a className="demo-link" href="#install">Chrome extension <ArrowRight size={14}/></a></div><div className="hero-meta"><span><Check size={13}/>No account needed</span><span><Check size={13}/>Your camera stays local</span></div></div>
- <div className="hero-product" onPointerMove={tilt} onPointerLeave={resetTilt}><div className="product-scene" ref={scene}>
- <div className="orbital orbital-a" aria-hidden="true"/><div className="orbital orbital-b" aria-hidden="true"/><div className="orbital orbital-c" aria-hidden="true"/>
- <div className="scene-label"><span className="signal-dot"/> A MOMENT OF CLARITY</div>
- <div className="hero-tile-wrap"><AppTile kind="shield" className="hero-tile"/><div className="tile-platform"/></div>
- <div className="satellite qr-satellite"><AppTile kind="qr"/><span>Point. Read. Decide.</span></div><div className="satellite link-satellite"><AppTile kind="link"/></div>
- <div className="destination-pill"><Globe size={15}/><span>That link you just received.</span><div className="pill-cursor"><MousePointer2 size={17} fill="currentColor"/></div></div>
- <div className="clarity-card"><div className="clarity-icon"><EyeOff size={19}/></div><div><strong>Look first. Open later.</strong><span>The destination stays closed.</span></div><Check size={17} className="clarity-check"/></div>
- <div className="floating-mini"><LockKeyhole size={13}/> Check first. Open when you’re ready.</div>
- </div><div className="product-caption"><span>LINKLIGHT, AT A GLANCE</span><span>MOVE YOUR CURSOR <ArrowUpRight size={12}/></span></div></div></div>
+ <div className="hero-product"><VerdictLens motion={motion}/></div></div>
  <div className="hero-bottom"><a href="#check" className="scroll-hint"><span><ArrowDown size={15}/></span> Check your link below</a><div className="service-chip"><span className={ready?'status-dot live':'status-dot'}/>{ready===null?'Checking service status':ready?'Checks available':'Checks currently unavailable'}<a href="#check" aria-label="Read service status"><ArrowUpRight size={14}/></a></div></div>
  </section>
  <WebsiteCheck/>

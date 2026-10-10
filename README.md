@@ -1,4 +1,25 @@
-# vinext-starter
+
+# Linklight
+
+Free link and QR-code safety checker. Rates a URL Low, Medium or High risk using Google Safe Browsing, VirusTotal, URLhaus and IPQS, with automatic failover when a source is busy.
+
+## Run locally
+
+```bash
+npm install
+cp .env.example .env.local   # then fill in your own keys (never commit this file)
+npm run dev
+npm test
+```
+
+## Deploy on Vercel
+
+1. Import this repo in Vercel (Framework: Next.js, nothing else to configure).
+2. Project, Settings, Environment Variables: add `SCANNING_ENABLED=true`, `GOOGLE_SAFE_BROWSING_API_KEY`, and optionally `VT_API_KEY`, `URLHAUS_AUTH_KEY`, `IPQS_API_KEY`. Keys live only in Vercel, never in Git.
+3. Add the Upstash Redis integration (Marketplace, free tier) so rate limits are shared across serverless instances. Without it the app still works but counts per instance.
+4. Redeploy.
+
+
 
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
 

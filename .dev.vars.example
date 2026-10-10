@@ -1,6 +1,0 @@
-# Copy to .dev.vars and fill in your own keys. Never commit .dev.vars.
-SCANNING_ENABLED=true
-GOOGLE_SAFE_BROWSING_API_KEY=
-VT_API_KEY=
-URLHAUS_AUTH_KEY=
-IPQS_API_KEY=
