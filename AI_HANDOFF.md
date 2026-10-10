@@ -25,7 +25,7 @@ The original version 5 handoff below is historical context. Consult the latest s
 This is the current complete source snapshot, exported October 10, 2026 UTC (October 9 in Chicago).
 Source commit: 5f61a5889a51b4a491955c2e31a2940978b25435
 Published Site version: 5
-Live website: https://linklight-check.alivecod8.chatgpt.site
+Live website: https://linklightns.vercel.app
 
 ## What Nishant wants
 

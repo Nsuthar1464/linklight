@@ -81,7 +81,7 @@ function assessReport(url,a,now) {
  return {label:{high:'High Risk',medium:'Medium Risk',low:'Low Risk'}[tone],tone,score,summary:{high:'Do not open this link. Security engines detected warning signs.',medium:'Pause before opening. Review the warning signs below.',low:'No major warning signs found in the available report.'}[tone],notes,evidence:`${flagged} of ${total} engines flagged this link. Report: ${Number.isFinite(date)?new Date(date).toLocaleString():"date unavailable"}. Redirect destinations are not independently checked.`};
 }
 export async function lookup(url,fetcher=fetch) {
- let r; try {r=await fetcher("https://linklight-check.alivecod8.chatgpt.site/api/check",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url}),signal:AbortSignal.timeout(20000),credentials:'omit',redirect:'error',cache:'no-store'});}catch{throw Error('Could not reach Linklight. Check your connection and try again.');}
+ let r; try {r=await fetcher("https://linklightns.vercel.app/api/check",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url}),signal:AbortSignal.timeout(20000),credentials:'omit',redirect:'error',cache:'no-store'});}catch{throw Error('Could not reach Linklight. Check your connection and try again.');}
  let payload;try{payload=await r.json();}catch{throw Error('Linklight is temporarily unavailable. Try again later.');}
  if(!r.ok)throw Error(typeof payload.error==='string'?payload.error:'Could not complete this security check.');
  return payload.attributes??null;
