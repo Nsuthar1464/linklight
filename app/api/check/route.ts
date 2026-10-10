@@ -1,9 +1,10 @@
-import {config,publicURL,reportSubset,reserveQuota} from '../../../lib/security';
+import {config,publicURL,reserveQuota} from '../../../lib/security';
+import {lookupProviders} from '../../../lib/provider-checks.mjs';
 const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
 const reply=(body:unknown,status=200)=>Response.json(body,{status,headers});
 export function OPTIONS(){return new Response(null,{status:204,headers});}
 export async function POST(req:Request){
- const c=config();if(c.SCANNING_ENABLED!=='true'||!c.VT_API_KEY)return reply({error:'Security checks are not activated yet. Please try again later. This link has not been rated.'},503);
+ const c=config();if(c.SCANNING_ENABLED!=='true'||!c.VT_API_KEY||!c.GOOGLE_SAFE_BROWSING_API_KEY)return reply({error:'Security checks are not activated yet. Please try again later. This link has not been rated.'},503);
  if(!req.headers.get('content-type')?.includes('application/json'))return reply({error:'Expected a URL check request.'},415);
  try{
   // Bound the stream even when Content-Length is absent or incorrect.
@@ -12,12 +13,6 @@ export async function POST(req:Request){
   const data=new Uint8Array(size);let pos=0;for(const chunk of chunks){data.set(chunk,pos);pos+=chunk.length;}
   let url:string;try{url=publicURL(JSON.parse(new TextDecoder().decode(data)).url);}catch(e){return reply({error:e instanceof Error?e.message:'Invalid URL.'},400);}
   if(!await reserveQuota())return new Response(JSON.stringify({error:'Linklight’s shared check allowance is busy or used up. Try again later.'}),{status:429,headers:{...headers,'Retry-After':'20'}});
-  const id=btoa(String.fromCharCode(...new TextEncoder().encode(url))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  const response=await fetch('https://www.virustotal.com/api/v3/urls/'+id,{headers:{'x-apikey':c.VT_API_KEY},signal:AbortSignal.timeout(12000),redirect:'error'});
-  if(response.status===404)return reply({attributes:null});
-  if(response.status===429)return reply({error:'Security checks are temporarily busy. Try again later.'},429);
-  if(!response.ok)return reply({error:'Security checks are temporarily unavailable. This link has not been rated.'},503);
-  const payload=await response.json() as {data?:{attributes?:Record<string,unknown>}};
-  return reply({attributes:reportSubset(payload.data?.attributes)});
+  return reply(await lookupProviders(url,{VT_API_KEY:c.VT_API_KEY,GOOGLE_SAFE_BROWSING_API_KEY:c.GOOGLE_SAFE_BROWSING_API_KEY},{cache:await caches.open('linklight-google-v1')}));
  }catch{return reply({error:'Could not complete the security check. Please try again later.'},503);}
 }

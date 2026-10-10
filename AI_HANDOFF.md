@@ -1,5 +1,15 @@
 # Linklight: start here
 
+## Current work: October 10, 2026 (Chicago)
+
+The owner requested Google Safe Browsing and VirusTotal together, with Bitly deferred. `lib/provider-checks.mjs` now queries both only from the server, uses key headers, sanitizes results and errors, and caches Google's positive/negative results for Google's supplied lifetime using a URL digest. Both runtime keys and `SCANNING_ENABLED=true` are required for activation. The shared quota remains conservative.
+
+Website and extension share combined assessment: Google threats override clean/missing VT reports, incomplete clean checks are Unknown, and known VT detections remain visible during Google failures. Google-specific warnings include qualified copy and advisory/context links. Expired Google-backed results are dismissed in both UIs. Older extension clients are withheld clean VT reports when Google flags or fails.
+
+42 automated tests and TypeScript checks cover the integration. Live credentials/results are not verified until the owner enters keys in the ignored owner-only `.dev.vars` editor. Never display the contents. Transfer only named keys into native Sites runtime secrets with `is_secret: true`, then redeploy and verify. Read `docs/OWNER_SETUP.md` for the exact workflow and restrictions.
+
+Public ZIP distribution is now retired: `/api/download` returns 410, the static ZIP and generated server ZIP payload are removed, and Get extension is disabled until a published listing URL is supplied. Set the exact verified listing URL in `lib/extension-store.ts`. `scripts/package-extension.mjs` creates the private owner upload package `outputs/Linklight-chrome-store.zip` (manifest at root), never a public file. Store installation does not conceal installed extension code. The prior ZIP included extension runtime files only, not website/backend source. Further visual changes remain deferred.
+
 ## Continuation on October 9, 2026 (Chicago)
 
 Use `/Users/nishant.mac/linklight/hosted` for continued work. It was opened from the existing hosted source at the version 5 commit; the exported project is preserved separately.

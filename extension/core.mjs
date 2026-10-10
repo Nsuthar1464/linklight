@@ -9,6 +9,35 @@ export function normalize(raw) {
  u.hash=''; return u.href;
 }
 export function assess(url,a,now=Date.now()) {
+ if(a?.combined===true)return assessCombined(url,a,now);
+ return assessReport(url,a,now);
+}
+function assessCombined(url,a,now){
+ const vt=assessReport(url,a,now),g=a.safe_browsing;
+ const googleReady=g?.state==='ok'&&Array.isArray(g.threatTypes)&&Number.isFinite(g.expiresAt)&&g.expiresAt>now&&Number.isFinite(g.checkedAt)&&g.checkedAt<=now+300000;
+ const definitions={
+  SOCIAL_ENGINEERING:'This destination may try to trick you into revealing personal information.',
+  MALWARE:'This destination may contain software that harms your device.',
+  UNWANTED_SOFTWARE:'This destination may offer software that changes your device in unwanted ways.',
+  POTENTIALLY_HARMFUL_APPLICATION:'This destination may offer an app that harms your device or data.'
+ };
+ if(googleReady&&g.threatTypes.length){
+  const notes=[...new Set(g.threatTypes.map(type=>definitions[type]||'Google identified a possible security threat.')),...vt.notes];
+  if(a.virus_total?.state!=='ok')notes.push('The second security source did not return a usable report.');
+  return {label:'High Risk',tone:'high',score:Math.max(90,vt.score??0),summary:'Avoid opening this link. A security source identified a possible threat.',notes,
+   evidence:'Google Safe Browsing matched a known threat list. Redirect destinations are not independently checked.',
+   googleExpiresAt:g.expiresAt,links:[
+    {label:'Advisory provided by Google',href:'https://developers.google.com/safe-browsing/v4/advisory'},
+    {label:'Learn about these threats',href:g.threatTypes.includes('SOCIAL_ENGINEERING')?'https://developers.google.com/search/docs/monitor-debug/security/social-engineering':g.threatTypes.includes('POTENTIALLY_HARMFUL_APPLICATION')?'https://developers.google.com/android/play-protect/potentially-harmful-applications':'https://developers.google.com/search/docs/monitor-debug/security/malware'}
+   ]};
+ }
+ const stats=a.last_analysis_stats;
+ const positive=stats&&(stats.malicious>0||stats.suspicious>0);
+ if(!googleReady&&!positive)return {...vt,label:'Unknown',tone:'unknown',score:null,summary:'The check is incomplete. There is not enough information to rate this link.',evidence:'One security source is unavailable or its result expired. Check again later.'};
+ if(googleReady)return {...vt,googleExpiresAt:g.expiresAt,evidence:vt.evidence+' Google Safe Browsing returned no known threat match. This does not guarantee safety.'};
+ return {...vt,notes:[...vt.notes,'The second security source is unavailable. This check is incomplete.']};
+}
+function assessReport(url,a,now) {
  const u=new URL(url), notes=[]; let local=0;
  if(u.protocol==='http:'){local+=20;notes.push('This link uses HTTP, which does not encrypt the connection.');}
  if(u.hostname.includes('xn--')){local+=20;notes.push('This domain contains international characters. Check for look-alike letters.');}

@@ -51,6 +51,11 @@ export default function WebsiteCheck(){
   return()=>{media.removeEventListener('change',detect);document.removeEventListener('visibilitychange',hidden);window.removeEventListener('pagehide',leave);scanner.current?.stop('',false);scanner.current=null;imageRun.current++;controller.current?.abort();};
  },[]);
  useEffect(()=>{if(message||result)feedback.current?.focus({preventScroll:true});},[message,result]);
+ useEffect(()=>{
+  if(!result?.googleExpiresAt)return;
+  const timer=setTimeout(()=>{setResult(null);setMessage('This result expired. Check the link again for an updated result.');},Math.max(0,result.googleExpiresAt-Date.now()));
+  return()=>clearTimeout(timer);
+ },[result]);
  async function check(event:FormEvent){
   event.preventDefault();if(checking.current)return;checking.current=true;
   scanner.current?.stop();imageRun.current++;setReading(false);setResult(null);setMessage('');setBusy(true);
@@ -75,7 +80,7 @@ export default function WebsiteCheck(){
  return <section className="live-check section-wrap" id="check">
   <div className="live-check-intro"><span className="eyebrow">CHECK A LINK</span><h2>See where<br/><span>that link goes.</span></h2><p>Paste a link from a message, email or QR code. Check the warning signs before you open it.</p><div className="live-badges"><span><ShieldCheck size={14}/>No account needed</span><span><Camera size={14}/>QR images stay on your device</span></div></div>
   <div className="checker-card">
-   <form onSubmit={check} noValidate><label htmlFor="website-url">Website link</label><div className="url-entry"><LinkIcon size={17}/><input ref={input} id="website-url" name="url" value={url} disabled={busy||reading} onChange={e=>{setUrl(e.target.value);setMessage('');setResult(null);}} placeholder="example.com or https://example.com" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={8192}/><button type="submit" disabled={busy||reading}>{busy?<LoaderCircle className="spin" size={17}/>:<ArrowRight size={17}/>}<span>{busy?'Checking…':'Check link'}</span></button></div><p className="checker-hint">Checking sends this URL to Linklight and an external security service. Avoid private links or links with passwords.</p></form>
+   <form onSubmit={check} noValidate><label htmlFor="website-url">Website link</label><div className="url-entry"><LinkIcon size={17}/><input ref={input} id="website-url" name="url" value={url} disabled={busy||reading} onChange={e=>{setUrl(e.target.value);setMessage('');setResult(null);}} placeholder="example.com or https://example.com" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={8192}/><button type="submit" disabled={busy||reading}>{busy?<LoaderCircle className="spin" size={17}/>:<ArrowRight size={17}/>}<span>{busy?'Checking…':'Check link'}</span></button></div><p className="checker-hint">Checking sends this URL to Linklight and external security services. Avoid private links or links with passwords.</p></form>
    <div ref={feedback} tabIndex={-1} className="check-feedback" aria-live="polite" aria-busy={busy}>
     {busy&&<p className="check-progress" role="status"><LoaderCircle className="spin" size={16}/>Looking for a security report…</p>}
     {message&&<div className="checker-error" role="status"><AlertTriangle size={16}/><span>{message}</span></div>}
@@ -88,7 +93,8 @@ export default function WebsiteCheck(){
     <p className="camera-message" role="status">{cameraMessage}</p>
     <label className="upload-link"><Upload size={14}/><span>{reading?'Reading image…':'Upload a QR image'}</span><input type="file" accept="image/png,image/jpeg,image/webp" disabled={busy||reading} onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void readFile(file);}}/></label>
    </div>
-   <p className="website-disclaimer">Automated checks can make mistakes. Low risk does not guarantee safety.</p>
+   {result?.links&&<p className="website-disclaimer">{result.links.map((link,i)=><span key={link.href}>{i>0?' · ':''}<a href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a></span>)}</p>}
+   <p className="website-disclaimer">Automated checks can miss threats or flag harmless links. Low risk does not guarantee safety.</p>
   </div>
  </section>;
 }

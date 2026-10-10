@@ -1,27 +1,50 @@
-# Activate shared checks
+# Activate shared security checks
 
-The downloaded extension and website contain no provider key. The API key is read only by the server route from the runtime secret VT_API_KEY. It is never returned by an endpoint. Do not put it into source files, browser storage, build variables prefixed NEXT_PUBLIC/VITE, the ZIP, or chat.
+Linklight now uses Google Safe Browsing and VirusTotal together. Bitly is not connected. Visitors do not need accounts or keys.
 
-1. Confirm that your provider plan permits this service. VirusTotal public API is limited to noncommercial/academic use and 4/min, 500/day. Commercial use needs an appropriate agreement. This server defaults to a conservative shared 3/min and 450/day budget.
-2. Configure hosted values using the connected Sites runtime environment tool. Add `VT_API_KEY` with `is_secret: true`. Keep `SCANNING_ENABLED=false` until the key is stored. Runtime values do not belong in `.openai/hosting.json`. If you want assistance transferring your key, enter it locally in the ignored `.dev.vars` file using a text editor, then ask to configure the hosted secret from that file. Do not paste the key into chat. The assistant must transfer the value without printing it in tool output or command arguments.
-3. Set `SCANNING_ENABLED=true` and redeploy the saved Site version to apply the environment revision. Check `/api/status`, then test `example.com` through the website. A `ready: true` status confirms configuration, not that the provider key is valid; an actual check must also succeed. Space checks at least 20 seconds apart. A missing report legitimately returns Unknown. If checks fail, set `SCANNING_ENABLED=false` and redeploy before sharing.
-4. The extension currently installs manually from the ZIP. If you later publish it through your Chrome Web Store developer account, replace the download link with the verified listing after approval.
+## Enter your keys privately
 
-## Local key entry
-
-Create `.dev.vars` in the project root only if you are ready to configure the key. It is ignored by Git and must remain outside published source and archives. Enter these names in your editor, replacing the placeholder locally:
+The assistant opened `.dev.vars` in the Codex editor. This local file has owner-only permissions and is excluded from Git. Paste each key after its equals sign, then save:
 
 ```dotenv
-VT_API_KEY=YOUR_KEY_HERE
+GOOGLE_SAFE_BROWSING_API_KEY=
+VT_API_KEY=
 SCANNING_ENABLED=false
 ```
 
-Do not commit the file, attach it to chat, or place it in the extension. Visitors never need their own key. A local `.dev.vars` file does not configure the hosted Site by itself.
+Do not paste keys into chat or attach the file. Do not put keys into website code, the extension, public assets, browser storage, `.openai/hosting.json`, or variables beginning with VITE/NEXT_PUBLIC.
 
-Provider documentation: [public API terms and quotas](https://docs.virustotal.com/reference/public-vs-premium-api), [finding your key](https://docs.virustotal.com/reference/getting-started). Current public limits are 4 requests/minute and 500/day; Linklight reserves at most 3/minute and 450/day across all visitors.
+Tell the assistant when you have saved the file. It can read only these values into session memory, without displaying them, and configure the existing Site with the native Sites runtime environment tool. Both keys must use `is_secret: true`. Key values must never appear in shell arguments, tool output, logs or tracked files. The local file alone does not configure the hosted Site.
 
-## Abuse and privacy boundary
+After transfer, confirm only the key names and their secret flags. Enable `SCANNING_ENABLED=true` and redeploy the saved version to apply the environment revision. Verify a benign real check. `/api/status` indicates configuration readiness, not provider authentication. If a key fails, disable checks and redeploy while fixing it. Remove local key values after verified hosted setup if local development does not need them.
 
-The API is public and anonymous; CORS is not authentication. No shared client secret is used because it would be extractable. A single atomic D1 quota row protects the provider key budget across Worker instances. All upstream requests, including failures, reserve quota. Upstream requests go only to the hard-coded VirusTotal API; user destinations are never fetched. Payloads are capped at 10 KB, requests time out, upstream errors are sanitized, and reports are restricted to counts/timestamps. No user-submitted URL or client IP is stored by this application. Infrastructure may retain request metadata.
+## Restrict the Google key
 
-An attacker can exhaust the public quota and deny service; key secrecy alone cannot prevent this. Before a broad launch or a larger paid plan, add user/device authentication and bot protection plus per-user quotas. Do not raise the shared budget without considering this. No claims of live detection or camera hardware validation were made during development: no owner key or physical laptop camera was supplied.
+Use a dedicated standard API key for Linklight and enable Safe Browsing API in that Google Cloud project. In APIs & Services > Credentials, edit the key and restrict its API access to Safe Browsing API only. Do not reuse a broad key that also permits unrelated Google APIs.
+
+These are server requests. A website/referrer restriction is not the correct restriction for this backend. IP restrictions require a verified stable outbound server IP; do not enter the site's domain or your laptop's IP. Review the project's Safe Browsing quota and usage alerts.
+
+Official guidance: [API key restrictions](https://docs.cloud.google.com/docs/authentication/api-keys), [key security](https://docs.cloud.google.com/docs/authentication/api-keys-best-practices).
+
+## Provider rules and limits
+
+[Google Safe Browsing](https://developers.google.com/safe-browsing/reference/Appropriate.Usage) is for noncommercial use. For a service that generates revenue, use Google Web Risk instead. Warnings based on Google data require a Google advisory link and qualified language. The interface includes both, and explains that harmless links may be flagged while real threats may be missed.
+
+[VirusTotal public API](https://docs.virustotal.com/reference/public-vs-premium-api) permits noncommercial use and is limited to 4 requests/minute and 500/day. Linklight retains a conservative shared allowance of one request every 20 seconds and 450/day across all visitors. A check can query both services in parallel; Google results are cached for the exact lifetime supplied by Google, including no-match results.
+
+## How results work
+
+- A current Google threat match produces a High Risk warning even if VirusTotal has no report or a clean report.
+- VirusTotal detections remain visible if Google is unavailable.
+- A Google no-match response alone does not create a Low Risk result. A usable recent VirusTotal report is also needed.
+- Missing/stale clean reports and incomplete clean checks remain Unknown.
+- Google-backed results expire and must be checked again. Scores summarize warning signs; they are not probabilities.
+- Neither service result guarantees safety. Linklight does not fetch the submitted destination, resolve redirects independently or submit fresh VirusTotal scans.
+
+## Privacy and abuse boundary
+
+Requests go only to fixed Google and VirusTotal endpoints. Keys travel in server-to-server headers, not URL query parameters. Provider errors are sanitized. Clients receive only counts, threat categories, timestamps and availability states, never keys or raw reports. Google's full-URL lookup sends the submitted URL to Google; VirusTotal receives its URL identifier.
+
+D1 stores the shared quota counters. Google's temporary response cache stores a SHA-256 digest of the URL plus sanitized threat data and expiry, not the raw URL or keys. This cache is not a browsing-history feature. Infrastructure and providers may retain their own request metadata.
+
+The endpoint remains public and anonymous. Key secrecy does not stop someone from exhausting the shared quota. Add bot protection and stronger abuse controls before a large public launch. Keep the allowance conservative.

@@ -1,5 +1,5 @@
 import {env} from 'cloudflare:workers';
-export function config(){return env as unknown as {DB?:D1Database;VT_API_KEY?:string;SCANNING_ENABLED?:string};}
+export function config(){return env as unknown as {DB?:D1Database;VT_API_KEY?:string;GOOGLE_SAFE_BROWSING_API_KEY?:string;SCANNING_ENABLED?:string};}
 export async function reserveQuota(){
  const db=config().DB;if(!db)throw Error('storage');const now=Date.now(),day=Math.floor(now/86400000);
  // One atomic row protects the shared provider budget across all Worker instances.
@@ -11,9 +11,4 @@ export function publicURL(raw:unknown){
  let u:URL;try{u=new URL(raw);}catch{throw Error('Enter a complete http:// or https:// address.');}
  if(!['https:','http:'].includes(u.protocol)||u.username||u.password)throw Error('Use a web address without embedded sign-in information.');
  const h=u.hostname.replace(/\.$/,'');if(h==='localhost'||h.endsWith('.localhost')||h.endsWith('.local')||!h.includes('.')||h.includes(':')||/^(127\.|10\.|192\.168\.|169\.254\.|0\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h))throw Error('Use a public website address.');u.hash='';return u.href;
-}
-export function reportSubset(a:Record<string,unknown>|undefined){
- const stats=a?.last_analysis_stats as Record<string,unknown>|undefined;
- if(!stats)return null;const clean:Record<string,number>={};for(const k of ['malicious','suspicious','harmless','undetected']){if(!Number.isInteger(stats[k])||Number(stats[k])<0)return null;clean[k]=Number(stats[k]);}
- return {last_analysis_stats:clean,last_analysis_date:typeof a?.last_analysis_date==='number'?a.last_analysis_date:null};
 }

@@ -1,12 +1,4 @@
-import {extensionZipBase64} from '../../../lib/extension-download-data';
-
+// ZIP distribution is retired. Installation will use the published Store listing.
 export function GET(){
- const bytes=Uint8Array.from(atob(extensionZipBase64),character=>character.charCodeAt(0));
- return new Response(bytes,{headers:{
-  'Content-Type':'application/zip',
-  'Content-Disposition':'attachment; filename="Linklight.zip"',
-  'Content-Length':String(bytes.byteLength),
-  'Cache-Control':'no-store',
-  'X-Content-Type-Options':'nosniff'
- }});
+ return Response.json({error:'The extension ZIP is no longer distributed here. Use the Chrome Web Store listing when it is published.'},{status:410,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 }

@@ -1,11 +1,11 @@
 'use client';
-import {useState} from 'react';
-import {Download} from 'lucide-react';
+import {ArrowUpRight} from 'lucide-react';
+import {chromeWebStoreUrl} from '../lib/extension-store';
 
 export default function ExtensionDownload(){
- const [requested,setRequested]=useState(false);
  return <div className="extension-download">
-  <a className="button bright" href="/api/download" download="Linklight.zip" onClick={()=>setRequested(true)}><Download size={18}/>Download for Chrome</a>
-  {requested&&<p role="status" className="download-feedback">Download requested. Check Chrome’s Downloads for Linklight.zip. If nothing appears, <a href="/Linklight.zip" download="Linklight.zip">try the ZIP directly</a>. After downloading, unzip the file and follow the Install step.</p>}
+  {chromeWebStoreUrl
+   ?<a className="button bright" href={chromeWebStoreUrl} target="_blank" rel="noopener noreferrer">Get extension<ArrowUpRight size={18}/></a>
+   :<><button className="button bright" type="button" disabled>Get extension<ArrowUpRight size={18}/></button><p className="download-feedback" role="status">The Chrome Web Store listing is not published yet. You can check links on the website.</p></>}
  </div>;
 }
