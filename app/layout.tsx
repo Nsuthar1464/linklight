@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SiteAnalytics } from "@/components/site-analytics";
 
 export const metadata: Metadata = {
   title: "Linklight | Check links and QR codes",
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">{children}<SiteAnalytics /></body>
     </html>
   );
 }

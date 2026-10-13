@@ -10,12 +10,15 @@ export default function Privacy(){
  return <main style={wrap}>
   <Link href="/" style={{color:'#94aaff',fontSize:14}}>← Linklight</Link>
   <h1 style={{fontSize:'clamp(36px,6vw,52px)',letterSpacing:'-2px',lineHeight:1.1,fontWeight:550,color:'#f5f5f8',margin:'24px 0 8px'}}>Privacy Policy</h1>
-  <p style={{color:'#858995',margin:0}}>Last updated: October 10, 2026</p>
+  <p style={{color:'#858995',margin:0}}>Last updated: October 12, 2026</p>
 
   <p style={{marginTop:28}}>Linklight checks whether a link or QR code destination shows signs of being unsafe. This policy covers the Linklight website (linklightns.vercel.app) and the Linklight Chrome extension.</p>
 
   <h2 style={h2}>What we collect</h2>
-  <p>Only the link you choose to check. When you press Check, that URL is sent to the Linklight service so it can return a result. We do not ask for an account, name, email address or password, and we do not use analytics or advertising trackers.</p>
+  <p>When you press Check, the URL you choose is sent to the Linklight service so it can return a result. We do not ask for an account, name, email address or password, and we do not use advertising trackers.</p>
+
+  <h2 style={h2}>Website analytics</h2>
+  <p>We use Vercel Web Analytics to understand aggregate visitor counts, page views, referrers, device types and approximate locations. It does not use cookies to identify visitors. We strip query parameters and fragments from page URLs before sending analytics, and do not send checked links, QR contents or check results as analytics events. Learn more in <a href="https://vercel.com/docs/analytics/privacy-policy" style={{color:'#94aaff'}}>Vercel’s analytics privacy documentation</a>. This analytics integration applies to the website, not the Chrome extension.</p>
 
   <h2 style={h2}>Who receives the link</h2>
   <p>To produce a rating, the Linklight service forwards the URL to external security services: Google Safe Browsing, VirusTotal, URLhaus and, as a backup, IPQualityScore. Each of these services handles the URL under its own privacy policy. Do not check links that contain passwords, private documents or sign-in tokens.</p>
